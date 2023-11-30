@@ -31,27 +31,35 @@ Feature: add employee scenario
     And user clicks on save button
     Then employee added successfully
 
-    @ddt
-    Scenario Outline: addning
-      When user enters "<firstName>" and "<middleName>" and enters "<lastName>"
-      And user clicks on save button
-      Then employee added successfully
-      Examples:
-        | firstName | middleName | lastName |
-      |Ayesha     |syntaxstu          |Saif      |
-      |Ehab     |syntaxstu          |maryland      |
-      |Tahmin        |ss         |Virginia     |
+  @ddt
+  Scenario Outline: addning
+    When user enters "<firstName>" and "<middleName>" and enters "<lastName>"
+    And user clicks on save button
+    Then employee added successfully
+    Examples:
+      | firstName | middleName | lastName |
+      | Ayesha    | syntaxstu  | Saif     |
+      | Ehab      | syntaxstu  | maryland |
+      | Tahmin    | ss         | Virginia |
 
-      @excel
-      Scenario: Addning multiple employees from excel files
-        When user adds multiple employees from excel using "Sheet1" and verify them
+  @excel
+  Scenario: Addning multiple employees from excel files
+    When user adds multiple employees from excel using "Sheet1" and verify them
 
-        @datatable
-        Scenario: adding multiple employees from data table
-          When user adds multiple employees from data table
+  @datatable
+  Scenario: adding multiple employees from data table
+    When user adds multiple employees from data table
 
-            | firstName | middleName | lastName |
-            |Ayesha1     |syntaxstwu      |Saif      |
-            |Ehab1        |syntaxstweu         |maryland      |
-            |Tahmin1        |ss         |Virginia     |
+      | firstName | middleName  | lastName |
+      | Ayesha1   | syntaxstwu  | Saif     |
+      | Ehab1     | syntaxstweu | maryland |
+      | Tahmin1   | ss          | Virginia |
 
+
+    @sqldatabase
+  Scenario: Add Employee from FrontEnd and verify from DB
+    When user enters "Joey" and "Phoebe" and "Monica"
+    And user clicks on save button
+    Then employee added successfully
+    And fetch employee info from backend
+    Then verify employee info is properly stored in db

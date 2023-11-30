@@ -1,5 +1,6 @@
 package steps;
 
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.cucumber.java.it.Ma;
@@ -8,6 +9,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import utils.CommonMethods;
 import utils.Constants;
+import utils.DbUtils;
 import utils.ExcelReader;
 
 import java.util.Iterator;
@@ -15,6 +17,17 @@ import java.util.List;
 import java.util.Map;
 
 public class AddEmployeeSteps extends CommonMethods {
+
+    String empId;
+    String firstNameFFE;
+    String middleNameFFE;
+    String lastNameFFE;
+
+    String firstNameFBE;
+    String middleNameFBE;
+    String lastNameFBE;
+
+
     @When("user clicks on add employee option")
     public void user_clicks_on_add_employee_option() {
         //  WebElement addEmployeeButton = driver.findElement(By.xpath("//*[@id='menu_pim_addEmployee']"));
@@ -31,6 +44,8 @@ public class AddEmployeeSteps extends CommonMethods {
         sendText(addEmployeePage.firstNameLoc, "nind");
         sendText(addEmployeePage.middleNameLoc, "esha");
         sendText(addEmployeePage.lastNameLoc, "lata");
+        empId = addEmployeePage.employeeIdLocator.getAttribute("value");
+
 
     }
 
@@ -62,6 +77,12 @@ public class AddEmployeeSteps extends CommonMethods {
         sendText(addEmployeePage.middleNameLoc, middleName);
         sendText(addEmployeePage.lastNameLoc, lastName);
 
+        firstNameFFE = firstName;
+        middleNameFFE = middleName;
+        lastNameFFE = lastName;
+        empId = addEmployeePage.employeeIdLocator.getAttribute("value");
+
+
     }
 
     @When("user enters {string} and {string} and enters {string}")
@@ -89,11 +110,11 @@ public class AddEmployeeSteps extends CommonMethods {
             //System.out.println(employeeMap.get("Photograph"));
             sendText(addEmployeePage.photograph, employeeMap.get("Photograph"));
 
-            if(!addEmployeePage.checkBox.isSelected()){
+            if (!addEmployeePage.checkBox.isSelected()) {
                 click(addEmployeePage.checkBox);
 
             }
-            sendText(addEmployeePage.usernameEmp,employeeMap.get("Username"));
+            sendText(addEmployeePage.usernameEmp, employeeMap.get("Username"));
             sendText(addEmployeePage.passwordEmp, employeeMap.get("Password"));
             sendText(addEmployeePage.confirmPassword, employeeMap.get("confirmPassword"));
 
@@ -114,7 +135,7 @@ public class AddEmployeeSteps extends CommonMethods {
             List<WebElement> rowData =
                     driver.findElements(By.xpath("//table[@id='resultTable']/tbody/tr"));
 
-            for (int i=0; i<rowData.size(); i++){
+            for (int i = 0; i < rowData.size(); i++) {
                 //it will give me the data from all the cell of the row
                 String rowText = rowData.get(i).getText();
                 System.out.println(rowText);
@@ -132,24 +153,39 @@ public class AddEmployeeSteps extends CommonMethods {
 
         }
     }
+
     @When("user adds multiple employees from data table")
     public void user_adds_multiple_employees_from_data_table(io.cucumber.datatable.DataTable dataTable) throws InterruptedException {
 
-        List<Map<String,String>>employeeNames=dataTable.asMaps();
-        for(Map<String,String> map:employeeNames ){
-           sendText(addEmployeePage.firstNameLoc, map.get("firstName"));
+        List<Map<String, String>> employeeNames = dataTable.asMaps();
+        for (Map<String, String> map : employeeNames) {
+            sendText(addEmployeePage.firstNameLoc, map.get("firstName"));
             sendText(addEmployeePage.middleNameLoc, map.get("middleName"));
             sendText(addEmployeePage.lastNameLoc, map.get("lastName"));
             click(addEmployeePage.saveBtn);
             Thread.sleep(2000);
             click(dashboardPage.addEmployeeButton);
             Thread.sleep(2000);
-
-
-
         }
-
     }
 
+    @And("fetch employee info from backend")
+    public void fetchEmployeeInfoFromBackend() {
+        String query = " select * from hs_hr_employees where employee_id='" + empId + "';";
+        List<Map<String, String>> data = DbUtils.fetch(query);
+        Map<String, String> firstRow = data.get(0);
+        firstNameFBE = firstRow.get("emp_firstname");
+        middleNameFBE = firstRow.get("emp_middle_name");
+        lastNameFBE = firstRow.get("emp_lastname");
+    }
 
+    @Then("verify employee info is properly stored in db")
+    public void verifyEmployeeInfoIsProperlyStoredInDb() {
+
+        Assert.assertEquals("Firstname from frondend is not same as backend", firstNameFFE, firstNameFBE);
+        Assert.assertEquals("middlename from frondend is not same as backend", middleNameFFE, middleNameFBE);
+        Assert.assertEquals("lastname from frondend is not same as backend", lastNameFFE, lastNameFBE);
+
+
+    }
 }

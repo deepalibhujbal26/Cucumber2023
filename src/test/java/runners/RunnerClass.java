@@ -18,7 +18,7 @@ import org.junit.runner.RunWith;
         dryRun = false,
         //tags will identify the scenarios in a group and will execute all the scenarios having these
        //tags="@ali or @nafiseh" or
-        tags="@assert123",
+        tags=" @jobTitle",
         //for gernerating the reports
         //pretty is responsible for printing the step definitions in console
         //in your framework all reports should be generated under target folder
